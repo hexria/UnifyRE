@@ -1,3 +1,4 @@
+use crate::core::traits::InstructionDecoder;
 use crate::errors::{Result, UnifyError};
 use capstone::prelude::*;
 use object::Architecture;
@@ -54,6 +55,12 @@ impl Disassembler {
             .collect();
 
         Ok(result)
+    }
+}
+
+impl InstructionDecoder for Disassembler {
+    fn decode(&self, code: &[u8], address: u64) -> Result<Vec<InstructionInfo>> {
+        self.disassemble(code, address)
     }
 }
 

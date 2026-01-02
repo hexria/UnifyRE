@@ -2,6 +2,7 @@ pub mod analyzer;
 pub mod debugger;
 pub mod disassembler;
 pub mod loader;
+pub mod plugins;
 pub mod traits;
 
 pub use analyzer::Analyzer;

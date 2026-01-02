@@ -1,6 +1,5 @@
 use crate::core::traits::BinaryProvider;
 use crate::errors::{Result, UnifyError};
-use object::File;
 use std::fs;
 
 pub struct BinaryLoader {

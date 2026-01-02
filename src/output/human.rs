@@ -8,11 +8,14 @@ pub fn print_analysis_report(report: &AnalysisResult) {
     println!("{:<20} {:#x}", "Entry Point:".bold(), report.entry_point);
 
     println!("\n{}", "--- Sections ---".bold().cyan());
-    println!("{:<20} {:<15} {:<15}", "Name", "Address", "Size");
+    println!(
+        "{:<20} {:<15} {:<15} {:<10}",
+        "Name", "Address", "Size", "Entropy"
+    );
     for section in &report.sections {
         println!(
-            "{:<20} {:#014x} {:#014x}",
-            section.name, section.address, section.size
+            "{:<20} {:#014x} {:#014x} {:<10.2}",
+            section.name, section.address, section.size, section.entropy
         );
     }
 
@@ -28,6 +31,13 @@ pub fn print_analysis_report(report: &AnalysisResult) {
         }
         if report.symbols.len() > 20 {
             println!("... ({} more symbols)", report.symbols.len() - 20);
+        }
+    }
+
+    if !report.findings.is_empty() {
+        println!("\n{}", "--- Suspicious Findings ---".bold().red());
+        for finding in &report.findings {
+            println!("{} {}", "(!) ".red().bold(), finding);
         }
     }
 }

@@ -10,6 +10,7 @@ pub struct AnalysisResult {
     pub entry_point: u64,
     pub sections: Vec<SectionInfo>,
     pub symbols: Vec<SymbolInfo>,
+    pub findings: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -17,6 +18,7 @@ pub struct SectionInfo {
     pub name: String,
     pub address: u64,
     pub size: u64,
+    pub entropy: f64,
 }
 
 #[derive(Serialize)]
@@ -38,12 +40,17 @@ impl<'a> Analyzer<'a> {
     pub fn analyze(&self) -> Result<AnalysisResult> {
         let file = self.provider.parse()?;
 
-        let sections = file
+        let sections: Vec<SectionInfo> = file
             .sections()
-            .map(|s| SectionInfo {
-                name: s.name().unwrap_or_default().to_string(),
-                address: s.address(),
-                size: s.size(),
+            .map(|s| {
+                let data = s.data().unwrap_or_default();
+                let entropy = crate::utils::helpers::calculate_entropy(data);
+                SectionInfo {
+                    name: s.name().unwrap_or_default().to_string(),
+                    address: s.address(),
+                    size: s.size(),
+                    entropy,
+                }
             })
             .collect();
 
@@ -56,12 +63,28 @@ impl<'a> Analyzer<'a> {
             })
             .collect();
 
+        let mut findings: Vec<String> = Vec::new();
+        for section in &sections {
+            if section.entropy > 7.0 {
+                findings.push(format!(
+                    "Section {} has high entropy ({:.2}) - potentially packed or encrypted.",
+                    section.name, section.entropy
+                ));
+            }
+        }
+
+        let suspicious = crate::utils::helpers::detect_suspicious_sequences(self.provider.data());
+        for (offset, desc) in suspicious {
+            findings.push(format!("At offset {:#x}: {}", offset, desc));
+        }
+
         Ok(AnalysisResult {
             format: format!("{:?}", file.format()),
             architecture: format!("{:?}", file.architecture()),
             entry_point: file.entry(),
             sections,
             symbols,
+            findings,
         })
     }
 

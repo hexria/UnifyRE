@@ -18,7 +18,7 @@ pub trait BinaryProvider: Send + Sync {
 }
 
 /// Interface for an analysis pass or component
-pub trait AnalyzerComponent: Send + Sync {
+pub trait AnalyzerComponent {
     /// Name of the analysis component
     fn name(&self) -> &str;
 
@@ -30,7 +30,7 @@ pub trait AnalyzerComponent: Send + Sync {
 }
 
 /// Abstract instruction decoder
-pub trait InstructionDecoder: Send + Sync {
+pub trait InstructionDecoder {
     /// Decode instructions from the provided byte slice
     fn decode(
         &self,
