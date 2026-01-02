@@ -34,6 +34,16 @@ pub enum Commands {
         #[arg(long)]
         strings: bool,
     },
+    /// Compare two binaries
+    Diff {
+        /// Path to the first binary
+        binary1: String,
+        /// Path to the second binary
+        binary2: String,
+        /// Output format (human, json)
+        #[arg(long, default_value = "human")]
+        format: String,
+    },
     /// Disassemble a binary
     Disasm {
         /// Path to the binary file
@@ -58,6 +68,8 @@ pub enum Commands {
         #[command(subcommand)]
         action: ScanCommands,
     },
+    /// Show detailed version information
+    Version,
     /// Generate a comprehensive report
     Report {
         /// Path to the binary file

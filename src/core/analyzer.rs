@@ -40,7 +40,7 @@ impl<'a> Analyzer<'a> {
     pub fn analyze(&self) -> Result<AnalysisResult> {
         let file = self.provider.parse()?;
 
-        let sections: Vec<SectionInfo> = file
+        let mut sections: Vec<SectionInfo> = file
             .sections()
             .map(|s| {
                 let data = s.data().unwrap_or_default();
@@ -53,8 +53,9 @@ impl<'a> Analyzer<'a> {
                 }
             })
             .collect();
+        sections.sort_by_key(|s| s.address);
 
-        let symbols = file
+        let mut symbols: Vec<SymbolInfo> = file
             .symbols()
             .map(|s| SymbolInfo {
                 name: s.name().unwrap_or_default().to_string(),
@@ -62,6 +63,7 @@ impl<'a> Analyzer<'a> {
                 kind: format!("{:?}", s.kind()),
             })
             .collect();
+        symbols.sort_by_key(|s| s.address);
 
         let mut findings: Vec<String> = Vec::new();
         for section in &sections {

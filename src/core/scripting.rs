@@ -19,7 +19,7 @@ pub enum Task {
 pub struct ScriptEngine;
 
 impl ScriptEngine {
-    pub fn run<P: AsRef<Path>>(script_path: P, binary_path: &str) -> Result<()> {
+    pub fn run<P: AsRef<Path>>(script_path: P, _binary_path: &str) -> Result<()> {
         let content =
             fs::read_to_string(script_path).map_err(|e| crate::errors::UnifyError::Io(e))?;
         let script: UreScript = serde_json::from_str(&content).map_err(|e| {

@@ -43,6 +43,46 @@ fn main() {
                 output::print_analysis_report(&result);
             }
         }
+        Commands::Diff {
+            binary1,
+            binary2,
+            format,
+        } => {
+            let loader1 = core::BinaryLoader::new(&binary1);
+            let loader2 = core::BinaryLoader::new(&binary2);
+
+            if let (Ok(l1), Ok(l2)) = (loader1, loader2) {
+                let analyzer1 = core::Analyzer::new(&l1);
+                let analyzer2 = core::Analyzer::new(&l2);
+
+                match (analyzer1.analyze(), analyzer2.analyze()) {
+                    (Ok(res1), Ok(res2)) => {
+                        let diff = core::diff::DiffEngine::compare(&res1, &res2);
+                        if format == "json" {
+                            println!("{}", serde_json::to_string_pretty(&diff).unwrap());
+                        } else {
+                            println!(
+                                "{} {} vs {}",
+                                "⚡ Binary Comparison:".bold().yellow(),
+                                binary1,
+                                binary2
+                            );
+                            println!("\n{} Sections:", "📦".blue());
+                            for d in diff.section_diffs {
+                                println!("  - {}", d);
+                            }
+                            println!("\n{} Symbols:", "🔍".green());
+                            for d in diff.symbol_diffs {
+                                println!("  - {}", d);
+                            }
+                        }
+                    }
+                    _ => eprintln!("{} Failed to analyze binaries for comparison", "✘".red()),
+                }
+            } else {
+                eprintln!("{} Failed to load binaries for comparison", "✘".red());
+            }
+        }
         Commands::Disasm { binary, entry, .. } => {
             let loader = match core::BinaryLoader::new(&binary) {
                 Ok(l) => l,
@@ -176,6 +216,12 @@ fn main() {
                     Err(e) => eprintln!("{} Error generating JSON: {}", "✘".red(), e),
                 }
             }
+        }
+        Commands::Version => {
+            println!("{} {}", "UnifyRE".bold().cyan(), env!("CARGO_PKG_VERSION"));
+            println!("Architecture: {}", std::env::consts::ARCH);
+            println!("OS: {}", std::env::consts::OS);
+            println!("Contract Status: {}", "Locked (v1.0 Candidate)".green());
         }
         Commands::Run { script, binary } => {
             if let Err(e) = core::scripting::ScriptEngine::run(script, &binary) {
