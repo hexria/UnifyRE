@@ -133,7 +133,7 @@ fn main() {
                 }
             }
         },
-        Commands::Report { binary, out } => {
+        Commands::Report { binary, out, html } => {
             let loader = match core::BinaryLoader::new(&binary) {
                 Ok(l) => l,
                 Err(e) => {
@@ -151,19 +151,35 @@ fn main() {
                 }
             };
 
-            match serde_json::to_string_pretty(&result) {
-                Ok(json) => {
-                    if let Err(e) = std::fs::write(&out, json) {
-                        eprintln!("{} Error writing report to {}: {}", "✘".red(), out, e);
-                    } else {
-                        println!(
-                            "{} Report generated successfully: {}",
-                            "✔".green(),
-                            out.bold()
-                        );
-                    }
+            if html {
+                match crate::output::html::generate_html_report(&result, &out) {
+                    Ok(_) => println!(
+                        "{} HTML report generated successfully: {}",
+                        "✔".green(),
+                        out.bold()
+                    ),
+                    Err(e) => eprintln!("{} Error generating HTML report: {}", "✘".red(), e),
                 }
-                Err(e) => eprintln!("{} Error generating JSON: {}", "✘".red(), e),
+            } else {
+                match serde_json::to_string_pretty(&result) {
+                    Ok(json) => {
+                        if let Err(e) = std::fs::write(&out, json) {
+                            eprintln!("{} Error writing report to {}: {}", "✘".red(), out, e);
+                        } else {
+                            println!(
+                                "{} Report generated successfully: {}",
+                                "✔".green(),
+                                out.bold()
+                            );
+                        }
+                    }
+                    Err(e) => eprintln!("{} Error generating JSON: {}", "✘".red(), e),
+                }
+            }
+        }
+        Commands::Run { script, binary } => {
+            if let Err(e) = core::scripting::ScriptEngine::run(script, &binary) {
+                eprintln!("{} Script error: {}", "✘".red(), e);
             }
         }
     }

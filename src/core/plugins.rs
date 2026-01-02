@@ -18,18 +18,21 @@ impl PluginManager {
 
     /// Load a plugin from a shared library file
     pub unsafe fn load_plugin<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
-        let lib = Library::new(path).map_err(|e| {
-            crate::errors::UnifyError::Internal(format!("Failed to load plugin library: {}", e))
-        })?;
+        let lib = unsafe {
+            Library::new(path.as_ref().as_os_str()).map_err(|e| {
+                crate::errors::UnifyError::Internal(format!("Failed to load plugin library: {}", e))
+            })?
+        };
 
         // Plugins must export a function named `unifyre_plugin_init`
-        let constructor: Symbol<unsafe extern "C" fn() -> *mut dyn AnalyzerComponent> =
+        let constructor: Symbol<unsafe extern "C" fn() -> *mut dyn AnalyzerComponent> = unsafe {
             lib.get(b"unifyre_plugin_init").map_err(|e| {
                 crate::errors::UnifyError::Internal(format!("Plugin missing constructor: {}", e))
-            })?;
+            })?
+        };
 
-        let plugin_ptr = constructor();
-        let plugin = Box::from_raw(plugin_ptr);
+        let plugin_ptr = unsafe { constructor() };
+        let plugin = unsafe { Box::from_raw(plugin_ptr) };
 
         self.plugins.push(plugin);
         self.libraries.push(lib);

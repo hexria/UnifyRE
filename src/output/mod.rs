@@ -1,3 +1,4 @@
+pub mod html;
 pub mod human;
 pub mod json;
 

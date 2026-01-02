@@ -1,0 +1,21 @@
+{
+  "name": "Security Audit Script",
+  "tasks": [
+    {
+      "Analyze": {
+        "output": "audit_report.html",
+        "html": true
+      }
+    },
+    {
+      "Scan": {
+        "pattern": "4889e5"
+      }
+    },
+    {
+      "Disasm": {
+        "entry": true
+      }
+    }
+  ]
+}

@@ -65,6 +65,16 @@ pub enum Commands {
         /// Output file path
         #[arg(long, default_value = "report.json")]
         out: String,
+        /// Generate HTML report
+        #[arg(long)]
+        html: bool,
+    },
+    /// Run an automation script (.ure)
+    Run {
+        /// Path to the script file
+        script: String,
+        /// Path to the binary file
+        binary: String,
     },
 }
 
