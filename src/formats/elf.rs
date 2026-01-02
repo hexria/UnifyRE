@@ -1,5 +1,5 @@
 use crate::errors::Result;
-use object::{Object, ObjectSection, elf};
+use object::{Object, ObjectSection};
 
 pub struct ElfAnalyzer<'a> {
     file: &'a object::File<'a>,

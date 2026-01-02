@@ -1,5 +1,5 @@
 use crate::errors::Result;
-use object::{Object, ObjectSection, macho};
+use object::Object;
 
 pub struct MachOAnalyzer<'a> {
     file: &'a object::File<'a>,

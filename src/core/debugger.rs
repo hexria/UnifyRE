@@ -51,6 +51,97 @@ impl Debugger {
     pub fn new(backend: Box<dyn DebuggerBackend>) -> Self {
         Self { backend }
     }
+}
 
-    // High level methods can be added here
+/// Linux-specific debugger backend using ptrace
+#[cfg(target_os = "linux")]
+pub struct LinuxBackend;
+
+#[cfg(target_os = "linux")]
+impl DebuggerBackend for LinuxBackend {
+    fn attach(&mut self, _pid: u32) -> Result<()> {
+        // nix::sys::ptrace::attach(Pid::from_raw(pid as i32)).map_err(...)
+        Err(crate::errors::UnifyError::NotImplemented(
+            "Linux attach".to_string(),
+        ))
+    }
+    fn spawn(&mut self, _path: &str) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "Linux spawn".to_string(),
+        ))
+    }
+    fn set_breakpoint(&mut self, _address: u64) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "Linux set_breakpoint".to_string(),
+        ))
+    }
+    fn list_breakpoints(&self) -> Vec<u64> {
+        vec![]
+    }
+    fn step(&mut self) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "Linux step".to_string(),
+        ))
+    }
+    fn continue_execution(&mut self) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "Linux continue".to_string(),
+        ))
+    }
+    fn read_registers(&self) -> Result<Registers> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "Linux read_registers".to_string(),
+        ))
+    }
+    fn read_memory(&self, _address: u64, _size: usize) -> Result<Vec<u8>> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "Linux read_memory".to_string(),
+        ))
+    }
+}
+
+/// macOS-specific debugger backend using Mach ports / debugserver
+#[cfg(target_os = "macos")]
+pub struct MacosBackend;
+
+#[cfg(target_os = "macos")]
+impl DebuggerBackend for MacosBackend {
+    fn attach(&mut self, _pid: u32) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "macOS attach".to_string(),
+        ))
+    }
+    fn spawn(&mut self, _path: &str) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "macOS spawn".to_string(),
+        ))
+    }
+    fn set_breakpoint(&mut self, _address: u64) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "macOS set_breakpoint".to_string(),
+        ))
+    }
+    fn list_breakpoints(&self) -> Vec<u64> {
+        vec![]
+    }
+    fn step(&mut self) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "macOS step".to_string(),
+        ))
+    }
+    fn continue_execution(&mut self) -> Result<()> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "macOS continue".to_string(),
+        ))
+    }
+    fn read_registers(&self) -> Result<Registers> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "macOS read_registers".to_string(),
+        ))
+    }
+    fn read_memory(&self, _address: u64, _size: usize) -> Result<Vec<u8>> {
+        Err(crate::errors::UnifyError::NotImplemented(
+            "macOS read_memory".to_string(),
+        ))
+    }
 }

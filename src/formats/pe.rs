@@ -1,5 +1,5 @@
 use crate::errors::Result;
-use object::{Object, ObjectSection, pe};
+use object::Object;
 
 pub struct PeAnalyzer<'a> {
     file: &'a object::File<'a>,
