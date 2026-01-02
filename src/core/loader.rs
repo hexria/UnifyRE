@@ -16,7 +16,7 @@ impl BinaryLoader {
         })
     }
 
-    pub fn parse(&self) -> Result<File> {
+    pub fn parse(&self) -> Result<File<'_>> {
         File::parse(&*self.data)
             .map_err(|e| UnifyError::ParseError(format!("Failed to parse binary: {}", e)))
     }

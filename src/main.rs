@@ -9,6 +9,7 @@ use clap::Parser;
 use cli::{Cli, Commands};
 use colored::*;
 use env_logger;
+use object::{Object, ObjectSection};
 
 fn main() {
     // Initialize logging
@@ -41,9 +42,64 @@ fn main() {
                 output::print_analysis_report(&result);
             }
         }
-        Commands::Disasm { binary, .. } => {
-            println!("{} Disassembling {}", "▶".blue(), binary.bold());
-            // TODO: Implement disassembly
+        Commands::Disasm { binary, entry, .. } => {
+            let loader = match core::BinaryLoader::new(&binary) {
+                Ok(l) => l,
+                Err(e) => {
+                    eprintln!("{} Error loading binary: {}", "✘".red(), e);
+                    return;
+                }
+            };
+
+            let file = match loader.parse() {
+                Ok(f) => f,
+                Err(e) => {
+                    eprintln!("{} Error parsing binary: {}", "✘".red(), e);
+                    return;
+                }
+            };
+
+            let disasm = match core::Disassembler::new(file.architecture()) {
+                Ok(d) => d,
+                Err(e) => {
+                    eprintln!("{} Error initializing disassembler: {}", "✘".red(), e);
+                    return;
+                }
+            };
+
+            if entry {
+                let entry_addr = file.entry();
+                // Find section containing entry point
+                let section = file
+                    .sections()
+                    .find(|s| entry_addr >= s.address() && entry_addr < s.address() + s.size());
+
+                if let Some(s) = section {
+                    let offset = entry_addr - s.address();
+                    if let Ok(data) = s.data() {
+                        let code = &data[offset as usize..];
+                        match disasm.disassemble(code, entry_addr) {
+                            Ok(insns) => {
+                                for i in insns.iter().take(20) {
+                                    println!(
+                                        "{:#014x}: {:<8} {}",
+                                        i.address,
+                                        i.mnemonic.yellow(),
+                                        i.op_str
+                                    );
+                                }
+                            }
+                            Err(e) => eprintln!("{} Disassembly error: {}", "✘".red(), e),
+                        }
+                    }
+                } else {
+                    eprintln!(
+                        "{} Entry point {:#x} not found in any section",
+                        "✘".red(),
+                        entry_addr
+                    );
+                }
+            }
         }
         Commands::Debug { target } => {
             println!("{} Debugging {}", "▶".blue(), target.bold());

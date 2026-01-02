@@ -4,4 +4,6 @@ pub mod disassembler;
 pub mod loader;
 
 pub use analyzer::Analyzer;
+pub use debugger::Debugger;
+pub use disassembler::Disassembler;
 pub use loader::BinaryLoader;

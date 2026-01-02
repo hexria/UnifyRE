@@ -64,4 +64,21 @@ impl<'a> Analyzer<'a> {
             symbols,
         })
     }
+
+    pub fn scan_patterns(&self, hex_pattern: &str) -> Result<Vec<u64>> {
+        let pattern = hex::decode(hex_pattern).map_err(|e| {
+            crate::errors::UnifyError::InvalidArgument(format!("Invalid hex pattern: {}", e))
+        })?;
+
+        let mut matches = Vec::new();
+        let data = &self.loader.data;
+
+        for i in 0..data.len().saturating_sub(pattern.len()) {
+            if &data[i..i + pattern.len()] == pattern.as_slice() {
+                matches.push(i as u64);
+            }
+        }
+
+        Ok(matches)
+    }
 }
