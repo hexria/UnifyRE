@@ -2,6 +2,7 @@ pub mod analyzer;
 pub mod debugger;
 pub mod diff;
 pub mod disassembler;
+pub mod explanations;
 pub mod loader;
 pub mod plugins;
 pub mod scripting;

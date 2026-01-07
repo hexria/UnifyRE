@@ -37,7 +37,18 @@ pub fn print_analysis_report(report: &AnalysisResult) {
     if !report.findings.is_empty() {
         println!("\n{}", "--- Suspicious Findings ---".bold().red());
         for finding in &report.findings {
-            println!("{} {}", "(!) ".red().bold(), finding);
+            let conf_str = match finding.confidence {
+                crate::core::analyzer::Confidence::High => "HIGH".red().bold(),
+                crate::core::analyzer::Confidence::Medium => "MED ".yellow().bold(),
+                crate::core::analyzer::Confidence::Low => "LOW ".blue().bold(),
+            };
+            println!(
+                "{} [{}] ({}) {}",
+                "(!) ".red().bold(),
+                conf_str,
+                finding.id.dimmed(),
+                finding.message
+            );
         }
     }
 }

@@ -48,9 +48,17 @@ pub fn generate_html_report(report: &AnalysisResult, out_path: &str) -> Result<(
     if !report.findings.is_empty() {
         html.push_str("<h2>Suspicious Findings</h2>\n");
         for finding in &report.findings {
+            let conf_class = match finding.confidence {
+                crate::core::analyzer::Confidence::High => "conf-high",
+                crate::core::analyzer::Confidence::Medium => "conf-med",
+                crate::core::analyzer::Confidence::Low => "conf-low",
+            };
             html.push_str(&format!(
-                "<div class=\"finding\"><strong>(!)</strong> {}</div>\n",
-                finding
+                "<div class=\"finding {}\"><strong>(!)</strong> {} <span class=\"finding-id\">({})</span> - {} <a href=\"#\" class=\"learn-more\">Learn more</a></div>\n",
+                conf_class,
+                format!("{:?}", finding.confidence).to_uppercase(),
+                finding.id,
+                finding.message
             ));
         }
     }

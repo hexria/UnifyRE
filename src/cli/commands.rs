@@ -70,6 +70,11 @@ pub enum Commands {
     },
     /// Show detailed version information
     Version,
+    /// Explain a specific finding ID
+    Explain {
+        /// The finding ID to explain
+        finding_id: String,
+    },
     /// Generate a comprehensive report
     Report {
         /// Path to the binary file

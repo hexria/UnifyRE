@@ -10,7 +10,22 @@ pub struct AnalysisResult {
     pub entry_point: u64,
     pub sections: Vec<SectionInfo>,
     pub symbols: Vec<SymbolInfo>,
-    pub findings: Vec<String>,
+    pub findings: Vec<Finding>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub enum Confidence {
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct Finding {
+    pub id: String,
+    pub message: String,
+    pub confidence: Confidence,
+    pub offset: Option<u64>,
 }
 
 #[derive(Serialize)]
@@ -65,19 +80,29 @@ impl<'a> Analyzer<'a> {
             .collect();
         symbols.sort_by_key(|s| s.address);
 
-        let mut findings: Vec<String> = Vec::new();
+        let mut findings: Vec<Finding> = Vec::new();
         for section in &sections {
             if section.entropy > 7.0 {
-                findings.push(format!(
-                    "Section {} has high entropy ({:.2}) - potentially packed or encrypted.",
-                    section.name, section.entropy
-                ));
+                findings.push(Finding {
+                    id: "HIGH_ENTROPY".to_string(),
+                    message: format!(
+                        "Section {} has high entropy ({:.2}) - potentially packed or encrypted.",
+                        section.name, section.entropy
+                    ),
+                    confidence: Confidence::High,
+                    offset: Some(section.address),
+                });
             }
         }
 
         let suspicious = crate::utils::helpers::detect_suspicious_sequences(self.provider.data());
         for (offset, desc) in suspicious {
-            findings.push(format!("At offset {:#x}: {}", offset, desc));
+            findings.push(Finding {
+                id: "SUSPICIOUS_SEQ".to_string(),
+                message: desc.clone(),
+                confidence: Confidence::Medium,
+                offset: Some(offset as u64),
+            });
         }
 
         Ok(AnalysisResult {
