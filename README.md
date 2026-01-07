@@ -1,79 +1,102 @@
 # UnifyRE 🚀
 
-Next-generation, CLI-based reverse engineering and binary analysis tool.
+[![Build Status](https://img.shields.io/badge/status-active-success.svg)](https://github.com/hexria/UnifyRE)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/hexria/UnifyRE/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos-lightgrey.svg)](#)
 
-## Overview
+**UnifyRE** is a next-generation, high-performance binary analysis and reverse engineering tool built in Rust. It unifies static heuristics, deterministic diffing, and intelligent transparency into a single, cohesive CLI platform.
 
-UnifyRE is a high-performance tool designed to unify static analysis, dynamic debugging, and automation. Built with Rust, it offers a professional-grade platform for binary security audits.
+---
 
-## Phase 2 Highlights (Professionalization & Intelligence)
+## 🌟 Core Pillars
 
-- **Hardened Architecture**: Trait-based abstractions for massive extensibility.
-- **Smart Intelligence**: Built-in Shannon entropy calculation and suspicious sequence detection (NOP sleds, etc.).
-- **Plugin System**: Dynamic loading of shared libraries for custom analysis logic.
-- **Headless Automation**: Orchestrate complex workflows using `.ure` scripts.
-- **Standalone HTML Dashboards**: Professional reporting with modern aesthetics.
+### ⚙️ Deterministic Analysis
+UnifyRE produces identical results across runs by enforcing stable address-based sorting for all internal collections. Your analysis is reproducible, consistent, and audit-ready.
 
-## Phase 3 Highlights (Productization & Authority)
+### 🧠 Trust & Transparency
+No more "black box" findings. The integrated **Explanation Engine** provides deep technical context for every detection. Use `unifyre explain <ID>` to understand the *why* and *how* behind any security risk.
 
-- **Determinism**: Guaranteed reproducible results via stable address-based sorting.
-- **Binary Comparison**: Advanced `diff` engine for sections, symbols, and entropy.
-- **Trust Layer**: Built-in knowledge base (via `explain`) for technical deep-dives.
-- **Analysis Profiles**: Tailor heuristics for `malware`, `exploit`, or `audit` scenarios.
+### 🔌 Extensible Architecture
+Built on a trait-based abstraction layer, UnifyRE supports dynamic plugin loading (`.so`/`.dylib`) and headless automation via `.ure` scripts.
 
-## Breaking Changes Policy
+---
 
-As UnifyRE approaches v1.0, we adhere to the following stability guarantees:
-1. **Semantic Versioning**: We use SEMVER for all releases.
-2. **CLI Stability**: CLI arguments and flags are considered stable in minor versions (1.x).
-3. **JSON Output**: The JSON schema is strictly versioned. Breaking changes will only occur in major releases.
-4. **Plugin ABI**: The internal trait system is currently in a "Locked" candidate state for v1.0.
+## 🛠 Features
 
-## Advanced Usage
+### 🔍 Static Intelligence
+- **Shannon Entropy**: Per-section entropy calculation to detect packed or encrypted data.
+- **Suspicious Heuristics**: Detection of NOP sleds, shellcode sequences, and unusual section names.
+- **Multi-Format Support**: Native handling of ELF, PE, and Mach-O binaries.
 
-### Generate an HTML Security Report
+### ⚖️ Comparison & Diff Engine
+Compare two binaries to find structural differences:
+- **Symbol Diffing**: Track added, removed, or modified symbols.
+- **Section Entropy Trends**: Visualize how data randomness changes between versions.
+- **Address-Level Precision**: Instruction-level awareness.
 
-```bash
-unifyre report /bin/ls --out report.html --html
-```
+### 📊 Professional Reporting
+- **Human Output**: Beautiful, colorized terminal reports for rapid triage.
+- **JSON Export**: Strictly versioned schema for CI/CD integration.
+- **HTML Dashboards**: Standalone, interactive visual reports with modern aesthetics.
 
-### Run an Automation Script
+---
 
-```bash
-unifyre run examples/security_audit.ure /bin/ls
-```
+## 🚀 Quick Start
 
-### Pattern Scanning with Suspicious Detection
-
-```bash
-unifyre scan patterns /bin/ls --pattern 90909090
-```
-
-## Plugin Development
-
-UnifyRE supports dynamic plugins. Implement the `AnalyzerComponent` trait and export the constructor using `declare_plugin!`.
-
-```rust
-use unifyre::core::traits::AnalyzerComponent;
-use unifyre::declare_plugin;
-
-struct MyPlugin;
-impl AnalyzerComponent for MyPlugin {
-    fn name(&self) -> &str { "MyPlugin" }
-    fn run(&self, provider: &dyn BinaryProvider) -> Result<serde_json::Value> {
-        // Custom logic
-    }
-}
-
-declare_plugin!(MyPlugin, MyPlugin::new);
-```
-
-## Installation
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/hexria/UnifyRE.git
+cd UnifyRE
+
+# Build for release
 cargo build --release
+
+# Install to path
+cargo install --path .
 ```
 
-## License
+### Basic Usage
 
-MIT License
+**Analyze a binary with a specific profile:**
+```bash
+unifyre analyze /bin/ls --profile malware
+```
+
+**Compare two versions of a binary:**
+```bash
+unifyre diff v1/app v2/app --format json
+```
+
+**Get a deep-dive on a finding:**
+```bash
+unifyre explain HIGH_ENTROPY
+```
+
+---
+
+## 📘 How UnifyRE Thinks
+
+### The Analysis Pipeline
+UnifyRE operates in three distinct layers:
+1. **Loader Layer**: Normalizes binary formats (ELF/PE/Mach-O) into a unified internal representation.
+2. **Analysis Engine**: Applies heuristics and pattern scanners based on the selected **Analysis Profile** (`audit`, `malware`, `exploit`).
+3. **Transparency Layer**: Maps finding IDs to a curated technical knowledge base to assist reverse engineers.
+
+---
+
+## 🏛 Breaking Changes Policy
+As of **v1.0.0**, UnifyRE adheres to Semantic Versioning (SemVer):
+- **Major versions (X.0.0)** may introduce breaking changes to the JSON schema or CLI.
+- **Minor versions (1.X.0)** will maintain CLI and argument backward compatibility.
+- **Patch versions (1.0.X)** focus exclusively on bug fixes and performance.
+
+---
+
+## 🤝 Contributing
+Contributions are welcome! Please see our architecture documentation for details on implementing new disassembler backends or analysis heuristics.
+
+## 📄 License
+UnifyRE is released under the **MIT License**.
